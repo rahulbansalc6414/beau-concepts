@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Circle Packing</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const circles = [];
+        const maxCircles = 300; // You can adjust the number of circles here.
+        const minRadius = 5;
+        const maxRadius = 30;
+
+        function getRandom(min, max)
+        {
+            return Math.random() * (max - min) + min;
+        }
+
+        function circleCollides(circle, x, y, radius)
+        {
+            const dx = circle.x - x;
+            const dy = circle.y - y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < circle.radius + radius;
+        }
+
+        function createCircle()
+        {
+            const radius = getRandom(minRadius, maxRadius);
+            const x = getRandom(radius, canvas.width - radius);
+            const y = getRandom(radius, canvas.height - radius);
+
+            for (const circle of circles)
+            {
+                if (circleCollides(circle, x, y, radius))
+                {
+                    return createCircle();
+                }
+            }
+
+            return { x, y, radius };
+        }
+
+        function drawCircle(circle)
+        {
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fill();
+        }
+
+        function packCircles()
+        {
+            circles.length = 0;
+            for (let i = 0; i < maxCircles; i++)
+            {
+                const newCircle = createCircle();
+                circles.push(newCircle);
+                drawCircle(newCircle);
+                console.log("Circle:", i);
+            }
+
+            console.log("Done");
+        }
+
+        function resizeCanvas()
+        {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            packCircles();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+
+</html>
